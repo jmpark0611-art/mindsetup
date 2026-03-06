@@ -16,24 +16,33 @@
         :root { --p: #5a67d8; --bg: #ffffff; }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; width: 100%; overflow: hidden; position: fixed; background: var(--bg); font-family: 'Apple SD Gothic Neo', sans-serif; }
+        
         .app { background: white; width: 100%; max-width: 450px; height: 100%; position: relative; margin: 0 auto; display: flex; flex-direction: column; }
+        
         .page { position: absolute; inset: 0; display: none; flex-direction: column; background: white; z-index: 10; overflow-y: auto; }
         .show { display: flex !important; }
-        .content { padding: 0 24px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .logo-wrapper { width: 100%; padding: 40px 0 20px; display: flex; flex-direction: column; align-items: center; }
-        .logo-img { width: 200px; height: auto; display: block; }
+        .content { padding: 0 24px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; }
+        
+        /* 로고 영역: 회색 바탕 완전 제거 및 크기 확대 */
+        .logo-wrapper { width: 100%; padding: 30px 0 10px; display: flex; flex-direction: column; align-items: center; background: white; }
+        .logo-img { width: 240px; height: auto; display: block; background: white; border: none; } /* 기존보다 1cm가량 키운 240px 적용 */
+        
         .box { width: 100%; max-width: 360px; padding: 16px; margin-bottom: 12px; border: 1.5px solid #eee; border-radius: 12px; font-size: 1rem; background: #fafafa; outline: none; }
+        .box:focus { border-color: var(--p); }
+        
         .btn { width: 100%; max-width: 360px; padding: 18px; background: var(--p); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin: 10px 0; }
         .btn-sub { width: 100%; max-width: 360px; padding: 18px; background: #f5f5f5; color: #666; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        
         .grid-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
         .choice-btn { background: white; border: 1.5px solid #eee; border-radius: 12px; padding: 12px; cursor: pointer; font-size: 0.95rem; justify-content: center; display: flex; align-items: center; gap: 8px; }
         .choice-btn.selected { background: var(--p); color: white; border-color: var(--p); font-weight: bold; }
+        
         .header { background: white; color: #333; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
         #view { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fdfdfd; }
-        .bbl { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; }
+        .bbl { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; }
         .me { background: var(--p); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         .ot { background: #f0f0f0; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .bar { padding: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; background: white; }
+        .bar { padding: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; background: white; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
         #in { flex: 1; padding: 12px 18px; border: 1.5px solid #eee; border-radius: 25px; background: #f9f9f9; }
     </style>
 </head>
@@ -41,9 +50,11 @@
 <div class="app">
     <div id="pg-auth" class="page show"><div class="content">
         <div class="logo-wrapper">
-            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img" onerror="this.src='https://api.dicebear.com/7.x/identicon/svg?seed=mindwave';">
+            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" 
+                 alt="로고" class="logo-img" 
+                 onerror="this.src='https://api.dicebear.com/7.x/identicon/svg?seed=mindwave';">
         </div>
-        <div style="height: 20px;"></div> 
+        <div style="height: 10px;"></div> 
         <input type="text" id="userid" class="box" placeholder="아이디">
         <input type="password" id="userpw" class="box" placeholder="비밀번호">
         <button class="btn" onclick="login()">시작하기</button>
@@ -52,14 +63,14 @@
 
     <div id="pg-setup" class="page"><div class="content">
         <div id="my-id-display" style="font-weight:bold; color:var(--p); margin-bottom:30px; font-size:1.3rem;"></div>
-        <p style="align-self:flex-start; font-weight:bold; margin-bottom:12px;">내 마음 상태</p>
+        <p style="align-self:flex-start; font-weight:bold; margin-bottom:12px; color:#444;">내 마음 상태</p>
         <div class="grid-container">
             <button class="choice-btn" onclick="selE(this, '번아웃')">🔥 번아웃</button>
             <button class="choice-btn" onclick="selE(this, '외로움')">☁️ 외로움</button>
             <button class="choice-btn" onclick="selE(this, '슬픔')">🌧️ 슬픔</button>
             <button class="choice-btn" onclick="selE(this, '화남')">⚡ 화남</button>
         </div>
-        <p style="align-self:flex-start; font-weight:bold; margin-top:20px; margin-bottom:12px;">원하는 대화 성향</p>
+        <p style="align-self:flex-start; font-weight:bold; margin-top:20px; margin-bottom:12px; color:#444;">원하는 대화 성향</p>
         <div class="grid-container">
             <button class="choice-btn" onclick="selP(this, '공감형')">🤝 공감형</button>
             <button class="choice-btn" onclick="selP(this, '조언형')">💡 조언형</button>
@@ -71,9 +82,9 @@
 
     <div id="pg-waiting" class="page"><div class="content">
         <div class="logo-wrapper">
-            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img" style="opacity:0.6;">
+            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img" style="opacity:0.8;">
         </div>
-        <h2 style="color:var(--p);">친구 찾는 중...</h2>
+        <h2 style="color:var(--p); margin-top:20px;">친구 찾는 중...</h2>
         <p style="color:#999; margin-top:10px;">잠시만 기다려주세요</p>
     </div></div>
 
@@ -85,122 +96,7 @@
 </div>
 
 <script>
-    // Firebase 설정
     const firebaseConfig = {
         apiKey: "AIzaSyCQKm1ZWeMN_YFpP3Cs_LdcQV8vRFcALfs",
         authDomain: "mindsetup.firebaseapp.com",
-        databaseURL: "https://mindsetup-default-rtdb.firebaseio.com",
-        projectId: "mindsetup",
-        storageBucket: "mindsetup.firebasestorage.app",
-        messagingSenderId: "484997102046",
-        appId: "1:484997102046:web:8acdb93d3a03fc6c14054f"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let currentUser = { id: "", nick: "" };
-    let myRoom = "";
-    let selectedEmotion = "";
-    let selectedPersona = "";
-
-    function go(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
-        const target = document.getElementById(id);
-        if(target) target.classList.add('show');
-    }
-
-    function signup() {
-        const id = document.getElementById('userid').value.trim();
-        const pw = document.getElementById('userpw').value.trim();
-        if(!id || !pw) return alert("아이디와 비밀번호를 입력해주세요.");
-        db.ref('users/' + id).set({ pw: pw }).then(() => {
-            alert("가입 완료! 이제 '시작하기'를 눌러 로그인하세요.");
-        }).catch(e => alert("오류: " + e.message));
-    }
-
-    function login() {
-        const id = document.getElementById('userid').value.trim();
-        const pw = document.getElementById('userpw').value.trim();
-        if(!id || !pw) return alert("아이디와 비밀번호를 입력하세요.");
-
-        db.ref('users/' + id).once('value', snap => {
-            if(snap.exists()) {
-                if(snap.val().pw === pw) {
-                    currentUser = { id: id, nick: id };
-                    document.getElementById('my-id-display').innerText = id + "님, 환영해요!";
-                    go('pg-setup');
-                } else { alert("비밀번호가 틀렸습니다."); }
-            } else { alert("존재하지 않는 아이디입니다."); }
-        }).catch(e => alert("로그인 오류: " + e.message));
-    }
-
-    function selE(b, v) { 
-        document.querySelectorAll('#pg-setup .grid-container:first-of-type .choice-btn').forEach(x => x.classList.remove('selected'));
-        b.classList.add('selected'); selectedEmotion = v; 
-    }
-    function selP(b, v) { 
-        document.querySelectorAll('#pg-setup .grid-container:last-of-type .choice-btn').forEach(x => x.classList.remove('selected'));
-        b.classList.add('selected'); selectedPersona = v; 
-    }
-
-    function startMatching() {
-        if(!selectedEmotion || !selectedPersona) return alert("감정과 성향을 모두 선택해주세요!");
-        go('pg-waiting');
-        const qRef = db.ref('match_queue');
-        
-        qRef.limitToFirst(1).once('value', snap => {
-            if(snap.exists()){
-                const key = Object.keys(snap.val())[0];
-                myRoom = snap.val()[key].roomID;
-                qRef.child(key).remove().then(() => initChat());
-            } else {
-                myRoom = "R_" + Date.now();
-                qRef.push({ roomID: myRoom });
-                
-                const roomUserRef = db.ref('rooms/' + myRoom + '/users');
-                roomUserRef.on('child_added', () => {
-                    roomUserRef.once('value', s => { 
-                        if(s.numChildren() >= 2) {
-                            roomUserRef.off();
-                            initChat(); 
-                        }
-                    });
-                });
-                roomUserRef.push(currentUser.nick);
-            }
-        });
-    }
-
-    function initChat() {
-        document.getElementById('view').innerHTML = '';
-        go('pg-chat');
-        const chatRef = db.ref('rooms/' + myRoom + '/messages');
-        chatRef.off();
-        chatRef.on('child_added', snap => {
-            const m = snap.val();
-            const side = m.sender === currentUser.nick ? 'me' : 'ot';
-            const d = document.createElement('div');
-            d.className = "bbl " + side; d.innerText = m.text;
-            document.getElementById('view').appendChild(d);
-            document.getElementById('view').scrollTop = 99999;
-        });
-    }
-
-    function send() {
-        const input = document.getElementById('in');
-        const t = input.value.trim();
-        if(t) {
-            db.ref('rooms/' + myRoom + '/messages').push({ sender: currentUser.nick, text: t });
-            input.value = '';
-        }
-    }
-
-    function endChat() {
-        if(confirm("대화를 종료할까요?")) {
-            db.ref('rooms/' + myRoom).remove();
-            go('pg-setup');
-        }
-    }
-</script>
-</body>
-</html>
+        databaseURL: "https://mindsetup-
