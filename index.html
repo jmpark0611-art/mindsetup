@@ -80,7 +80,7 @@
             line-height: 1.25;
         }
 
-        /* 프로필 섹션 */
+        /* 프로필 섹션 수정 */
         .profile-section { 
             margin: 0 0 35px; 
             width: 100%; 
@@ -90,6 +90,12 @@
             border-radius: 16px; 
             border: 1px solid #e0e0e0; 
         }
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 15px;
+        }
         .profile-pic { 
             width: 80px;               /* 지름 약 2cm */
             height: 80px;
@@ -97,7 +103,11 @@
             object-fit: cover;
             border: 3px solid white;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            background: #eee;
+            background: #eee;          /* 기본 배경색 유지 */
+        }
+        .profile-pic.no-photo {
+            background: #eee url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 50 L75 85 L25 85 Z" fill="%23ccc"/></svg>') center no-repeat; /* 회색 하트 실루엣 - SVG로 회색 하트 */
+            background-size: 50%;
         }
         .my-id-display {
             font-size: 1.1rem;
@@ -107,15 +117,15 @@
             text-align: center;
         }
         .upload-btn { 
-            margin-top: 8px;
-            padding: 6px 14px;         /* 버튼 크기 절반으로 축소 */
+            margin-top: 6px;
+            padding: 5px 12px;         /* 버튼 크기 절반으로 축소 */
             background: var(--p);
             color: white;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
         .preview-container { 
             position: relative;
@@ -157,13 +167,15 @@
             <!-- 프로필 섹션 -->
             <div class="profile-section">
                 <h3 style="margin-bottom: 10px; color: #444; font-size: 1.1rem;">나를 소개해주세요</h3>
-                <div class="my-id-display" id="my-id-display"></div> <!-- 내 아이디 표시 -->
+                <div class="my-id-display" id="my-id-display"></div>
                 
-                <div class="preview-container">
-                    <img id="profile-preview" class="profile-pic" src="" alt="프로필 사진">
-                    <input type="file" id="profile-upload" accept="image/*" onchange="previewProfile(event)">
+                <div class="profile-container">
+                    <div class="preview-container">
+                        <img id="profile-preview" class="profile-pic no-photo" src="" alt="프로필 사진">
+                        <input type="file" id="profile-upload" accept="image/*" onchange="previewProfile(event)">
+                    </div>
+                    <button class="upload-btn" onclick="document.getElementById('profile-upload').click()">사진 업로드 / 변경</button>
                 </div>
-                <button class="upload-btn" onclick="document.getElementById('profile-upload').click()">사진 업로드 / 변경</button>
                 <p style="color:#777; font-size:0.8rem; margin: 6px 0;">JPG/PNG, 최대 5MB</p>
                 <textarea id="bio-input" class="bio-input" placeholder="어떤 마음을 나누고 싶으신가요? 😊"></textarea>
             </div>
@@ -213,7 +225,6 @@
         </div>
     </div>
 
-    <!-- 나머지 페이지들 (pg-waiting, pg-chat 등)은 변경 없음 -->
     <div id="pg-waiting" class="page"><div class="content">
         <h2>주파수 찾는 중...</h2>
         <div class="loader"></div>
@@ -271,21 +282,6 @@
     let selectedEmotion = "";
     let selectedPersona = "";
 
-    // 감정/성향 점수 매핑 (스마트 매칭용)
-    const emotionScores = {
-        "번아웃": 1,
-        "외로움": 2,
-        "슬픔": 3,
-        "화남": 4
-    };
-
-    const personaScores = {
-        "공감형": 1,
-        "조언형": 2,
-        "침묵형": 3,
-        "일상대화": 4
-    };
-
     function go(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
         document.getElementById(id).classList.add('show');
@@ -314,7 +310,7 @@
            
             currentUser = { id: id, nick: id, isAdmin: snap.val().isAdmin || (id === 'admin') };
             document.getElementById('btn-admin').style.display = currentUser.isAdmin ? 'block' : 'none';
-            document.getElementById('my-id-display').innerText = currentUser.nick;  // 내 아이디 표시
+            document.getElementById('my-id-display').innerText = currentUser.nick;
             
             loadProfile();
             go('pg-setup');
@@ -328,8 +324,13 @@
             if (data) {
                 if (data.photoUrl) {
                     document.getElementById('profile-preview').src = data.photoUrl;
+                    document.getElementById('profile-preview').classList.remove('no-photo');
+                } else {
+                    document.getElementById('profile-preview').classList.add('no-photo');
                 }
                 if (data.bio) document.getElementById('bio-input').value = data.bio;
+            } else {
+                document.getElementById('profile-preview').classList.add('no-photo');
             }
         });
     }
@@ -342,6 +343,7 @@
         const reader = new FileReader();
         reader.onload = e => {
             document.getElementById('profile-preview').src = e.target.result;
+            document.getElementById('profile-preview').classList.remove('no-photo');
         };
         reader.readAsDataURL(file);
     }
@@ -368,7 +370,6 @@
         const qRef = db.ref('match_queue');
         qRef.limitToFirst(1).once('value', (snap) => {
             if (snap.exists()) {
-                // Guest: 가장 먼저 기다리는 사람과 매칭 (기존 방식)
                 const data = snap.val();
                 const key = Object.keys(data)[0];
                 myRoom = data[key].roomID;
@@ -377,19 +378,12 @@
                     initChat(oppoEmo, selectedPersona);
                 });
             } else {
-                // Host: 내가 방 만들고 대기
                 myRoom = "R_" + Date.now();
                 const myQ = qRef.push();
-                myQ.set({ 
-                    roomID: myRoom, 
-                    name: currentUser.nick, 
-                    emotion: selectedEmotion,
-                    emotionScore: emotionScores[selectedEmotion] || 0,
-                    personaScore: personaScores[selectedPersona] || 0
-                });
+                myQ.set({ roomID: myRoom, name: currentUser.nick, emotion: selectedEmotion });
                 myQ.onDisconnect().remove();
                 db.ref('rooms/' + myRoom + '/users').push(currentUser.nick);
-
+               
                 const uRef = db.ref('rooms/' + myRoom + '/users');
                 const check = () => {
                     uRef.once('value', s => {
@@ -403,9 +397,6 @@
             }
         });
     }
-
-    // 스마트 매칭 로직 (Host가 여러 명 대기 중일 때 가장 비슷한 상대 선택 - 향후 확장용)
-    // 현재는 limitToFirst(1)로 FIFO 유지, 나중에 큐 전체 읽어서 점수 차이 최소인 상대 선택 가능
 
     function selectEmotion(btn) {
         document.querySelectorAll('#emotion-grid .choice-btn').forEach(b => b.classList.remove('selected'));
