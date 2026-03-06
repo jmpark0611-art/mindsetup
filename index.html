@@ -28,7 +28,7 @@
         .logo { 
             width: 240px; 
             height: auto; 
-            margin-bottom: 20px; 
+            margin-bottom: 25px; 
             display: block; 
         }
         .title { 
@@ -103,8 +103,8 @@
    
     <div id="pg-auth" class="page show">
         <div class="content">
-            <!-- 네 로고 Raw URL로 교체해서 중앙에 크게 배치 -->
-            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindsetup/icon.png" 
+            <!-- 네 로고 Raw URL 적용 (확장자 없이 icon으로 끝남) -->
+            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindsetup/icon" 
                  alt="MindWave 로고" 
                  class="logo">
             
@@ -129,8 +129,70 @@
         </div>
     </div>
 
-    <!-- pg-setup, pg-waiting, pg-chat 등 나머지 화면은 이전과 동일 -->
-    <!-- (코드 길이 절약을 위해 생략했지만 실제로는 그대로 사용하세요) -->
+    <!-- pg-setup 화면 (기존 그대로) -->
+    <div id="pg-setup" class="page">
+        <div class="content" style="padding-top: 30px;">
+            <div class="profile-section">
+                <h3 style="margin-bottom: 10px; color: #444; font-size: 1.1rem;">나를 소개해주세요</h3>
+                <div class="my-id-display" id="my-id-display"></div>
+                
+                <div class="profile-container">
+                    <div class="preview-container">
+                        <img id="profile-preview" class="profile-pic" src="" alt="프로필 사진">
+                        <input type="file" id="profile-upload" accept="image/*" onchange="previewProfile(event)">
+                    </div>
+                    <button class="upload-btn" onclick="document.getElementById('profile-upload').click()">사진 업로드 / 변경</button>
+                </div>
+                <p style="color:#777; font-size:0.8rem; margin: 6px 0;">JPG/PNG, 최대 5MB</p>
+                <textarea id="bio-input" class="bio-input" placeholder="어떤 마음을 나누고 싶으신가요? 😊"></textarea>
+            </div>
+
+            <p style="align-self: flex-start; margin-bottom: 10px; font-weight: bold; color: #555; font-size: 1rem;">현재 내 감정</p>
+            <div class="grid-container" id="emotion-grid">
+                <button class="choice-btn" data-value="번아웃" onclick="selectEmotion(this)">
+                    <div class="choice-icon">🔥</div>
+                    <div class="choice-label">번아웃</div>
+                </button>
+                <button class="choice-btn" data-value="외로움" onclick="selectEmotion(this)">
+                    <div class="choice-icon">☁️</div>
+                    <div class="choice-label">외로움</div>
+                </button>
+                <button class="choice-btn" data-value="슬픔" onclick="selectEmotion(this)">
+                    <div class="choice-icon">🌧️</div>
+                    <div class="choice-label">슬픔</div>
+                </button>
+                <button class="choice-btn" data-value="화남" onclick="selectEmotion(this)">
+                    <div class="choice-icon">⚡</div>
+                    <div class="choice-label">화남</div>
+                </button>
+            </div>
+
+            <p style="align-self: flex-start; margin: 35px 0 10px; font-weight: bold; color: #555; font-size: 1rem;">대화 상대의 성향</p>
+            <div class="grid-container" id="persona-grid">
+                <button class="choice-btn" data-value="공감형" onclick="selectPersona(this)">
+                    <div class="choice-icon">🤝</div>
+                    <div class="choice-label">공감형</div>
+                </button>
+                <button class="choice-btn" data-value="조언형" onclick="selectPersona(this)">
+                    <div class="choice-icon">💡</div>
+                    <div class="choice-label">조언형</div>
+                </button>
+                <button class="choice-btn" data-value="침묵형" onclick="selectPersona(this)">
+                    <div class="choice-icon">🤫</div>
+                    <div class="choice-label">침묵형</div>
+                </button>
+                <button class="choice-btn" data-value="일상대화" onclick="selectPersona(this)">
+                    <div class="choice-icon">☕</div>
+                    <div class="choice-label">일상대화</div>
+                </button>
+            </div>
+
+            <button class="btn" onclick="saveProfileAndMatch()">대화 시작하기</button>
+            <button id="btn-admin" class="btn-sub" style="display:none; margin-top:20px;" onclick="goAdmin()">관리자 모드 접속</button>
+        </div>
+    </div>
+
+    <!-- pg-waiting, pg-chat, pg-review, pg-admin 등 나머지 페이지는 이전과 동일하게 유지 -->
 </div>
 
 <script>
@@ -213,7 +275,6 @@
         });
     }
 
-    // 나머지 함수들 (loadProfile, saveProfileAndMatch, selectEmotion 등)은 이전과 동일하게 유지
     function loadProfile() {
         if (!currentUser.id) return;
         db.ref('users/' + currentUser.id + '/profile').once('value', snap => {
@@ -225,7 +286,19 @@
         });
     }
 
-    // ... (기존 나머지 함수들 그대로 사용) ...
+    function previewProfile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) return alert("5MB 이하 파일만 업로드 가능합니다.");
+
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('profile-preview').src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // ... (기존 나머지 함수들 그대로 유지) ...
 </script>
 </body>
 </html>
