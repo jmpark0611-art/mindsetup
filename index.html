@@ -103,8 +103,8 @@
    
     <div id="pg-auth" class="page show">
         <div class="content">
-            <!-- 네 로고 Raw URL 적용 (확장자 없이 icon으로 끝남) -->
-            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindsetup/icon" 
+            <!-- 네가 업로드한 로고 Raw URL 적용 (중앙에 크게 배치) -->
+            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png" 
                  alt="MindWave 로고" 
                  class="logo">
             
@@ -298,7 +298,69 @@
         reader.readAsDataURL(file);
     }
 
-    // ... (기존 나머지 함수들 그대로 유지) ...
+    function saveProfileAndMatch() {
+        if (!currentUser.id) return alert("로그인 상태를 확인해주세요.");
+
+        const bio = document.getElementById('bio-input').value.trim();
+        const profileUpdates = {};
+        if (bio) profileUpdates.bio = bio;
+
+        if (Object.keys(profileUpdates).length > 0) {
+            db.ref('users/' + currentUser.id + '/profile').update({
+                ...profileUpdates,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        if (!selectedEmotion) return alert("현재 감정을 선택해주세요.");
+        if (!selectedPersona) return alert("대화 상대의 성향을 선택해주세요.");
+
+        go('pg-waiting');
+
+        const qRef = db.ref('match_queue');
+        qRef.limitToFirst(1).once('value', (snap) => {
+            if (snap.exists()) {
+                const data = snap.val();
+                const key = Object.keys(data)[0];
+                myRoom = data[key].roomID;
+                const oppoEmo = data[key].emotion;
+                qRef.child(key).remove().then(() => {
+                    initChat(oppoEmo, selectedPersona);
+                });
+            } else {
+                myRoom = "R_" + Date.now();
+                const myQ = qRef.push();
+                myQ.set({ roomID: myRoom, name: currentUser.nick, emotion: selectedEmotion });
+                myQ.onDisconnect().remove();
+                db.ref('rooms/' + myRoom + '/users').push(currentUser.nick);
+               
+                const uRef = db.ref('rooms/' + myRoom + '/users');
+                const check = () => {
+                    uRef.once('value', s => {
+                        if(s.numChildren() >= 2) {
+                            uRef.off('child_added', check);
+                            initChat(selectedEmotion, selectedPersona);
+                        }
+                    });
+                };
+                uRef.on('child_added', check);
+            }
+        });
+    }
+
+    function selectEmotion(btn) {
+        document.querySelectorAll('#emotion-grid .choice-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedEmotion = btn.dataset.value;
+    }
+
+    function selectPersona(btn) {
+        document.querySelectorAll('#persona-grid .choice-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedPersona = btn.dataset.value;
+    }
+
+    // 나머지 채팅 관련 함수들 (initChat, send, renderMsg 등)은 이전과 동일하게 유지
 </script>
 </body>
 </html>
