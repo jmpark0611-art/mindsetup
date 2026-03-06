@@ -23,23 +23,19 @@
         .show { display: flex !important; }
         .content { padding: 0 24px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; }
         
-        /* 로고 영역 수정: 배경을 화이트로 고정 */
         .logo-wrapper { width: 100%; padding: 40px 0 20px; display: flex; flex-direction: column; align-items: center; background: white; }
-        .logo-img { width: 200px; height: auto; display: block; background: white; } /* 로고 자체 배경 화이트 */
-        
-        /* 제목 텍스트 삭제됨 */
+        .logo-img { width: 200px; height: auto; display: block; background: white; }
 
-        .box { width: 100%; max-width: 360px; padding: 16px; margin-bottom: 12px; border: 1.5px solid #eee; border-radius: 12px; font-size: 1rem; background: #fafafa; }
+        .box { width: 100%; max-width: 360px; padding: 16px; margin-bottom: 12px; border: 1.5px solid #eee; border-radius: 12px; font-size: 1rem; background: #fafafa; outline: none; }
+        .box:focus { border-color: var(--p); }
         .btn { width: 100%; max-width: 360px; padding: 18px; background: var(--p); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin: 10px 0; }
         .btn-sub { width: 100%; max-width: 360px; padding: 18px; background: #f5f5f5; color: #666; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
         .link-btn { background:none; border:none; color:#999; text-decoration:underline; cursor:pointer; font-size:0.9rem; margin-top:15px; }
 
-        /* 매칭 UI */
         .grid-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
         .choice-btn { background: white; border: 1.5px solid #eee; border-radius: 12px; padding: 12px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; justify-content: center; }
         .choice-btn.selected { background: var(--p); color: white; border-color: var(--p); font-weight: bold; }
         
-        /* 채팅 UI */
         .header { background: white; color: #333; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
         #view { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fdfdfd; }
         .bbl { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; }
@@ -109,4 +105,91 @@
         projectId: "mindsetup",
         storageBucket: "mindsetup.firebasestorage.app",
         messagingSenderId: "484997102046",
-        appId: "1:484997102046:web:8
+        appId: "1:484997102046:web:8acdb93d3a03fc6c14054f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let currentUser = { id: "", nick: "" };
+    let myRoom = "";
+    let selectedEmotion = "";
+    let selectedPersona = "";
+    let receivedMsg = [];
+
+    function go(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
+        document.getElementById(id).classList.add('show');
+    }
+
+    // 회원가입 함수
+    function signup() {
+        const id = document.getElementById('userid').value.trim();
+        const pw = document.getElementById('userpw').value.trim();
+        if(!id || !pw) return alert("아이디와 비밀번호를 입력해주세요.");
+        
+        db.ref('users/' + id).set({ pw: pw }).then(() => {
+            alert("회원가입 완료! 이제 '시작하기' 버튼을 눌러주세요.");
+        }).catch(e => alert("오류 발생: " + e.message));
+    }
+
+    // 로그인 함수 (시작하기 버튼)
+    function login() {
+        const id = document.getElementById('userid').value.trim();
+        const pw = document.getElementById('userpw').value.trim();
+        
+        if(!id || !pw) return alert("아이디와 비밀번호를 입력해주세요.");
+
+        db.ref('users/' + id).once('value', snap => {
+            if(snap.exists()) {
+                if(snap.val().pw === pw) {
+                    currentUser = { id: id, nick: id };
+                    document.getElementById('my-id-display').innerText = id + "님의 공간";
+                    if(id === 'admin') document.getElementById('btn-admin').style.display = 'block';
+                    go('pg-setup');
+                } else {
+                    alert("비밀번호가 틀렸습니다.");
+                }
+            } else {
+                alert("가입되지 않은 아이디입니다. '새 계정 만들기'를 먼저 해주세요.");
+            }
+        }).catch(e => alert("연결 오류: " + e.message));
+    }
+
+    function selE(b, v) { 
+        document.querySelectorAll('#pg-setup .grid-container:first-of-type .choice-btn').forEach(x => x.classList.remove('selected'));
+        b.classList.add('selected'); selectedEmotion = v; 
+    }
+    function selP(b, v) { 
+        document.querySelectorAll('#pg-setup .grid-container:last-of-type .choice-btn').forEach(x => x.classList.remove('selected'));
+        b.classList.add('selected'); selectedPersona = v; 
+    }
+
+    function startMatching() {
+        if(!selectedEmotion || !selectedPersona) return alert("감정과 성향을 모두 골라주세요!");
+        go('pg-waiting');
+        const qRef = db.ref('match_queue');
+        qRef.limitToFirst(1).once('value', snap => {
+            if(snap.exists()){
+                const key = Object.keys(snap.val())[0];
+                myRoom = snap.val()[key].roomID;
+                qRef.child(key).remove().then(() => initChat());
+            } else {
+                myRoom = "R_" + Date.now();
+                qRef.push({ roomID: myRoom });
+                db.ref('rooms/' + myRoom + '/users').on('child_added', () => {
+                    db.ref('rooms/' + myRoom + '/users').once('value', s => { if(s.numChildren() >= 2) initChat(); });
+                });
+                db.ref('rooms/' + myRoom + '/users').push(currentUser.nick);
+            }
+        });
+    }
+
+    function initChat() {
+        receivedMsg = []; 
+        document.getElementById('view').innerHTML = '';
+        go('pg-chat');
+        db.ref('rooms/' + myRoom + '/messages').off();
+        db.ref('rooms/' + myRoom + '/messages').on('child_added', snap => {
+            const m = snap.val();
+            const side = m.sender === currentUser.nick ? 'me' : 'ot';
+            if
