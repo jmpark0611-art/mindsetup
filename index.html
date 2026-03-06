@@ -66,19 +66,26 @@
             <button class="choice-btn" onclick="selP(this, '침묵형')">🤫 침묵형</button>
             <button class="choice-btn" onclick="selP(this, '일상')">☕ 일상</button>
         </div>
-        <button class="btn" onclick="startMatching()">주파수 연결하기</button>
+        <button class="btn" onclick="startMatching()">대화 시작하기</button>
     </div></div>
 
-    <div id="pg-waiting" class="page"><div class="content"><h2>연결 중...</h2></div></div>
+    <div id="pg-waiting" class="page"><div class="content">
+        <div class="logo-wrapper">
+            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img" style="opacity:0.6;">
+        </div>
+        <h2 style="color:var(--p);">친구 찾는 중...</h2>
+        <p style="color:#999; margin-top:10px;">잠시만 기다려주세요</p>
+    </div></div>
+
     <div id="pg-chat" class="page">
-        <div class="header"><span>대화 중 📡</span><button onclick="endChat()">종료</button></div>
+        <div class="header"><span>실시간 대화</span><button onclick="endChat()" style="background:none; border:none; color:var(--p); font-weight:bold;">종료</button></div>
         <div id="view"></div>
-        <div class="bar"><input type="text" id="in" placeholder="입력..." onkeypress="if(event.key==='Enter') send()"><button onclick="send()">전송</button></div>
+        <div class="bar"><input type="text" id="in" placeholder="메시지를 입력하세요" onkeypress="if(event.key==='Enter') send()"><button onclick="send()" style="border:none; background:none; color:var(--p); font-weight:bold; padding:0 10px;">전송</button></div>
     </div>
 </div>
 
 <script>
-    // Firebase 설정 복구 완료
+    // Firebase 설정
     const firebaseConfig = {
         apiKey: "AIzaSyCQKm1ZWeMN_YFpP3Cs_LdcQV8vRFcALfs",
         authDomain: "mindsetup.firebaseapp.com",
@@ -98,7 +105,8 @@
 
     function go(id) {
         document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
-        document.getElementById(id).classList.add('show');
+        const target = document.getElementById(id);
+        if(target) target.classList.add('show');
     }
 
     function signup() {
@@ -106,24 +114,24 @@
         const pw = document.getElementById('userpw').value.trim();
         if(!id || !pw) return alert("아이디와 비밀번호를 입력해주세요.");
         db.ref('users/' + id).set({ pw: pw }).then(() => {
-            alert("회원가입 완료! 이제 시작하기를 눌러주세요.");
-        });
+            alert("가입 완료! 이제 '시작하기'를 눌러 로그인하세요.");
+        }).catch(e => alert("오류: " + e.message));
     }
 
     function login() {
         const id = document.getElementById('userid').value.trim();
         const pw = document.getElementById('userpw').value.trim();
-        if(!id || !pw) return alert("입력창을 채워주세요.");
+        if(!id || !pw) return alert("아이디와 비밀번호를 입력하세요.");
 
         db.ref('users/' + id).once('value', snap => {
             if(snap.exists()) {
                 if(snap.val().pw === pw) {
                     currentUser = { id: id, nick: id };
-                    document.getElementById('my-id-display').innerText = id + "님의 공간";
+                    document.getElementById('my-id-display').innerText = id + "님, 환영해요!";
                     go('pg-setup');
                 } else { alert("비밀번호가 틀렸습니다."); }
-            } else { alert("가입되지 않은 아이디입니다."); }
-        });
+            } else { alert("존재하지 않는 아이디입니다."); }
+        }).catch(e => alert("로그인 오류: " + e.message));
     }
 
     function selE(b, v) { 
@@ -136,9 +144,10 @@
     }
 
     function startMatching() {
-        if(!selectedEmotion || !selectedPersona) return alert("모두 골라주세요!");
+        if(!selectedEmotion || !selectedPersona) return alert("감정과 성향을 모두 선택해주세요!");
         go('pg-waiting');
         const qRef = db.ref('match_queue');
+        
         qRef.limitToFirst(1).once('value', snap => {
             if(snap.exists()){
                 const key = Object.keys(snap.val())[0];
@@ -147,10 +156,17 @@
             } else {
                 myRoom = "R_" + Date.now();
                 qRef.push({ roomID: myRoom });
-                db.ref('rooms/' + myRoom + '/users').on('child_added', () => {
-                    db.ref('rooms/' + myRoom + '/users').once('value', s => { if(s.numChildren() >= 2) initChat(); });
+                
+                const roomUserRef = db.ref('rooms/' + myRoom + '/users');
+                roomUserRef.on('child_added', () => {
+                    roomUserRef.once('value', s => { 
+                        if(s.numChildren() >= 2) {
+                            roomUserRef.off();
+                            initChat(); 
+                        }
+                    });
                 });
-                db.ref('rooms/' + myRoom + '/users').push(currentUser.nick);
+                roomUserRef.push(currentUser.nick);
             }
         });
     }
@@ -158,7 +174,9 @@
     function initChat() {
         document.getElementById('view').innerHTML = '';
         go('pg-chat');
-        db.ref('rooms/' + myRoom + '/messages').on('child_added', snap => {
+        const chatRef = db.ref('rooms/' + myRoom + '/messages');
+        chatRef.off();
+        chatRef.on('child_added', snap => {
             const m = snap.val();
             const side = m.sender === currentUser.nick ? 'me' : 'ot';
             const d = document.createElement('div');
@@ -169,14 +187,20 @@
     }
 
     function send() {
-        const t = document.getElementById('in').value.trim();
+        const input = document.getElementById('in');
+        const t = input.value.trim();
         if(t) {
             db.ref('rooms/' + myRoom + '/messages').push({ sender: currentUser.nick, text: t });
-            document.getElementById('in').value = '';
+            input.value = '';
         }
     }
 
-    function endChat() { go('pg-setup'); }
+    function endChat() {
+        if(confirm("대화를 종료할까요?")) {
+            db.ref('rooms/' + myRoom).remove();
+            go('pg-setup');
+        }
+    }
 </script>
 </body>
 </html>
