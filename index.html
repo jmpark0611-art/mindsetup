@@ -3,48 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>마음 주파수 - 정식 버전</title>
+    <title>마음 주파수</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png">
 
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     
     <style>
-        :root { --p: #5a67d8; --bg: #f0f2f5; --p-light: #ebedf9; }
+        :root { --p: #5a67d8; --bg: #ffffff; --p-light: #ebedf9; }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
         html, body { height: 100%; width: 100%; overflow: hidden; position: fixed; background: var(--bg); font-family: 'Apple SD Gothic Neo', sans-serif; }
-        .app { background: white; width: 100%; max-width: 450px; height: 100%; position: relative; margin: 0 auto; display: flex; flex-direction: column; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        
+        .app { background: white; width: 100%; max-width: 450px; height: 100%; position: relative; margin: 0 auto; display: flex; flex-direction: column; }
         
         .page { position: absolute; inset: 0; display: none; flex-direction: column; background: white; z-index: 10; overflow-y: auto; }
         .show { display: flex !important; }
-        .content { padding: 20px 24px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .content { padding: 0 24px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; }
         
-        /* 로고 영역 보정 */
-        .logo-wrapper { width: 100%; margin-bottom: 20px; display: flex; flex-direction: column; align-items: center; }
-        .logo-img { width: 220px; height: auto; display: block; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1)); }
+        /* 로고 영역 수정: 배경을 화이트로 고정 */
+        .logo-wrapper { width: 100%; padding: 40px 0 20px; display: flex; flex-direction: column; align-items: center; background: white; }
+        .logo-img { width: 200px; height: auto; display: block; background: white; } /* 로고 자체 배경 화이트 */
         
-        .title { color: var(--p); font-size: 1.8rem; margin-bottom: 40px; font-weight: bold; }
-        .box { width: 100%; max-width: 360px; padding: 16px; margin-bottom: 12px; border: 1.5px solid #ddd; border-radius: 12px; font-size: 1rem; }
-        .btn { width: 100%; max-width: 360px; padding: 18px; background: var(--p); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin: 15px 0 10px; }
-        .btn-sub { width: 100%; max-width: 360px; padding: 18px; background: #eee; color: #555; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
-        .link-btn { background:none; border:none; color:var(--p); text-decoration:underline; cursor:pointer; font-size:0.95rem; margin-top:15px; }
+        /* 제목 텍스트 삭제됨 */
+
+        .box { width: 100%; max-width: 360px; padding: 16px; margin-bottom: 12px; border: 1.5px solid #eee; border-radius: 12px; font-size: 1rem; background: #fafafa; }
+        .btn { width: 100%; max-width: 360px; padding: 18px; background: var(--p); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin: 10px 0; }
+        .btn-sub { width: 100%; max-width: 360px; padding: 18px; background: #f5f5f5; color: #666; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        .link-btn { background:none; border:none; color:#999; text-decoration:underline; cursor:pointer; font-size:0.9rem; margin-top:15px; }
 
         /* 매칭 UI */
         .grid-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
-        .choice-btn { background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 8px 10px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        .choice-btn.selected { background: var(--p); color: white; border-color: var(--p); }
+        .choice-btn { background: white; border: 1.5px solid #eee; border-radius: 12px; padding: 12px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; font-size: 0.95rem; justify-content: center; }
+        .choice-btn.selected { background: var(--p); color: white; border-color: var(--p); font-weight: bold; }
         
         /* 채팅 UI */
-        .header { background: var(--p); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-        #view { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; }
-        .bbl { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; }
+        .header { background: white; color: #333; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
+        #view { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fdfdfd; }
+        .bbl { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; }
         .me { background: var(--p); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .ot { background: #e2e8f0; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .bar { padding: 10px; border-top: 1px solid #eee; display: flex; gap: 8px; background: white; }
-        #in { flex: 1; padding: 12px 16px; border: 1.5px solid #ddd; border-radius: 25px; }
+        .ot { background: #f0f0f0; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .bar { padding: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; background: white; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+        #in { flex: 1; padding: 12px 18px; border: 1.5px solid #eee; border-radius: 25px; background: #f9f9f9; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -52,21 +54,21 @@
     
     <div id="pg-auth" class="page show"><div class="content">
         <div class="logo-wrapper">
-            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png?v=2" 
-                 alt="로고" class="logo-img" id="main-logo"
+            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" 
+                 alt="로고" class="logo-img"
                  onerror="this.src='https://api.dicebear.com/7.x/identicon/svg?seed=mindwave';">
         </div>
-        <h1 class="title">마음 주파수</h1>
+        <div style="height: 20px;"></div> 
         <input type="text" id="userid" class="box" placeholder="아이디">
         <input type="password" id="userpw" class="box" placeholder="비밀번호">
-        <button class="btn" onclick="login()">로그인</button>
-        <button class="btn-sub" onclick="signup()">회원가입</button>
+        <button class="btn" onclick="login()">시작하기</button>
+        <button class="btn-sub" onclick="signup()">새 계정 만들기</button>
     </div></div>
 
     <div id="pg-setup" class="page"><div class="content">
-        <div id="my-id-display" style="font-weight:bold; color:var(--p); margin-bottom:20px; font-size:1.2rem;"></div>
+        <div id="my-id-display" style="font-weight:bold; color:var(--p); margin-bottom:30px; font-size:1.3rem;"></div>
         
-        <p style="align-self:flex-start; font-weight:bold; margin-bottom:10px;">내 감정</p>
+        <p style="align-self:flex-start; font-weight:bold; margin-bottom:12px; color:#444;">내 마음 상태</p>
         <div class="grid-container">
             <button class="choice-btn" onclick="selE(this, '번아웃')">🔥 번아웃</button>
             <button class="choice-btn" onclick="selE(this, '외로움')">☁️ 외로움</button>
@@ -74,7 +76,7 @@
             <button class="choice-btn" onclick="selE(this, '화남')">⚡ 화남</button>
         </div>
 
-        <p style="align-self:flex-start; font-weight:bold; margin-bottom:10px;">원하는 상대</p>
+        <p style="align-self:flex-start; font-weight:bold; margin-top:20px; margin-bottom:12px; color:#444;">원하는 대화 성향</p>
         <div class="grid-container">
             <button class="choice-btn" onclick="selP(this, '공감형')">🤝 공감형</button>
             <button class="choice-btn" onclick="selP(this, '조언형')">💡 조언형</button>
@@ -82,25 +84,24 @@
             <button class="choice-btn" onclick="selP(this, '일상')">☕ 일상</button>
         </div>
 
-        <button class="btn" onclick="startMatching()">매칭 시작</button>
-        <button id="btn-admin" class="btn-sub" style="display:none;" onclick="goAdmin()">관리자 페이지</button>
+        <button class="btn" style="margin-top:30px;" onclick="startMatching()">주파수 연결하기</button>
+        <button id="btn-admin" class="btn-sub" style="display:none;" onclick="goAdmin()">관리자 대시보드</button>
     </div></div>
 
-    <div id="pg-waiting" class="page"><div class="content"><h2>매칭 중...</h2></div></div>
+    <div id="pg-waiting" class="page"><div class="content"><div class="logo-wrapper"><img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img" style="opacity:0.5;"></div><h2>연결 중...</h2></div></div>
     <div id="pg-chat" class="page">
-        <div class="header"><span>실시간 대화</span><button onclick="endChat()">종료</button></div>
+        <div class="header"><span>연결된 주파수 📡</span><button onclick="endChat()" style="background:#f5f5f5; border:none; padding:5px 10px; border-radius:8px; color:#666;">종료</button></div>
         <div id="view"></div>
-        <div class="bar"><input type="text" id="in" onkeypress="if(event.key==='Enter') send()"><button onclick="send()">전송</button></div>
+        <div class="bar"><input type="text" id="in" placeholder="따뜻한 말을 건네보세요" onkeypress="if(event.key==='Enter') send()"><button onclick="send()" style="color:var(--p); font-weight:bold; background:none; border:none; padding:0 10px;">전송</button></div>
     </div>
-    <div id="pg-review" class="page"><div class="content"><h3>도움이 된 말 선택</h3><div id="review-list"></div></div></div>
+    <div id="pg-review" class="page"><div class="content"><h3>기억하고 싶은 문장 선택</h3><p style="color:#999; font-size:0.9rem; margin-bottom:20px;">터치하면 저장됩니다</p><div id="review-list" style="width:100%;"></div></div></div>
     <div id="pg-admin" class="page">
-        <div class="header" style="background:#333;"><span>관리자</span><button onclick="go('pg-setup')">X</button></div>
-        <div id="admin-view" style="padding:15px;"></div>
+        <div class="header" style="background:#333; color:white;"><span>관리자</span><button onclick="go('pg-setup')" style="color:white; background:none; border:none;">X</button></div>
+        <div id="admin-view" style="padding:15px; background:#fafafa; flex:1;"></div>
     </div>
 </div>
 
 <script>
-    // Firebase 설정
     const firebaseConfig = {
         apiKey: "AIzaSyCQKm1ZWeMN_YFpP3Cs_LdcQV8vRFcALfs",
         authDomain: "mindsetup.firebaseapp.com",
@@ -108,114 +109,4 @@
         projectId: "mindsetup",
         storageBucket: "mindsetup.firebasestorage.app",
         messagingSenderId: "484997102046",
-        appId: "1:484997102046:web:8acdb93d3a03fc6c14054f"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    let currentUser = { id: "", nick: "" };
-    let myRoom = "";
-    let selectedEmotion = "";
-    let selectedPersona = "";
-    let receivedMsg = [];
-
-    function go(id) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
-        document.getElementById(id).classList.add('show');
-    }
-
-    function signup() {
-        const id = document.getElementById('userid').value.trim();
-        const pw = document.getElementById('userpw').value.trim();
-        if(id && pw) db.ref('users/' + id).set({ pw: pw }).then(() => alert("가입 완료!"));
-    }
-
-    function login() {
-        const id = document.getElementById('userid').value.trim();
-        const pw = document.getElementById('userpw').value.trim();
-        db.ref('users/' + id).once('value', snap => {
-            if(snap.exists() && snap.val().pw === pw) {
-                currentUser = { id: id, nick: id };
-                document.getElementById('my-id-display').innerText = "반가워요, " + id + "님!";
-                if(id === 'admin') document.getElementById('btn-admin').style.display = 'block';
-                go('pg-setup');
-            } else alert("로그인 실패");
-        });
-    }
-
-    function selE(b, v) { 
-        document.querySelectorAll('#pg-setup button').forEach(x => x.classList.remove('selected'));
-        b.classList.add('selected'); selectedEmotion = v; 
-    }
-    function selP(b, v) { 
-        b.classList.add('selected'); selectedPersona = v; 
-    }
-
-    function startMatching() {
-        go('pg-waiting');
-        const qRef = db.ref('match_queue');
-        qRef.limitToFirst(1).once('value', snap => {
-            if(snap.exists()){
-                const key = Object.keys(snap.val())[0];
-                myRoom = snap.val()[key].roomID;
-                qRef.child(key).remove().then(() => initChat());
-            } else {
-                myRoom = "R_" + Date.now();
-                qRef.push({ roomID: myRoom });
-                db.ref('rooms/' + myRoom + '/users').on('child_added', () => {
-                    db.ref('rooms/' + myRoom + '/users').once('value', s => { if(s.numChildren() >= 2) initChat(); });
-                });
-                db.ref('rooms/' + myRoom + '/users').push(currentUser.nick);
-            }
-        });
-    }
-
-    function initChat() {
-        receivedMsg = []; document.getElementById('view').innerHTML = '';
-        go('pg-chat');
-        db.ref('rooms/' + myRoom + '/messages').on('child_added', snap => {
-            const m = snap.val();
-            const side = m.sender === currentUser.nick ? 'me' : 'ot';
-            if(side === 'ot') receivedMsg.push(m.text);
-            const d = document.createElement('div');
-            d.className = "bbl " + side; d.innerText = m.text;
-            document.getElementById('view').appendChild(d);
-            document.getElementById('view').scrollTop = 99999;
-        });
-    }
-
-    function send() {
-        const t = document.getElementById('in').value;
-        if(t) {
-            db.ref('rooms/' + myRoom + '/messages').push({ sender: currentUser.nick, text: t });
-            document.getElementById('in').value = '';
-        }
-    }
-
-    function endChat() {
-        const list = document.getElementById('review-list');
-        list.innerHTML = '';
-        receivedMsg.forEach(m => {
-            const d = document.createElement('div');
-            d.style.padding = "10px"; d.style.borderBottom = "1px solid #eee";
-            d.innerText = m;
-            d.onclick = () => {
-                db.ref('good_quotes').push({ text: m, user: currentUser.nick });
-                alert("저장됨!"); go('pg-setup');
-            };
-            list.appendChild(d);
-        });
-        go('pg-review');
-    }
-
-    function goAdmin() {
-        go('pg-admin');
-        db.ref('good_quotes').once('value', snap => {
-            const v = document.getElementById('admin-view');
-            v.innerHTML = '';
-            snap.forEach(c => { v.innerHTML += `<div style="padding:10px; background:white; margin-bottom:5px;">${c.val().text}</div>`; });
-        });
-    }
-</script>
-</body>
-</html>
+        appId: "1:484997102046:web:8
