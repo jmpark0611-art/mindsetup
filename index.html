@@ -20,9 +20,11 @@
         .app { background: white; width: 100%; max-width: 450px; height: 100%; position: relative; margin: 0 auto; display: flex; flex-direction: column; }
         .page { position: absolute; inset: 0; display: none; flex-direction: column; background: white; z-index: 10; overflow-y: auto; opacity: 0; transition: var(--ani); }
         .page.show { display: flex !important; opacity: 1; }
-        .content { padding: 0 24px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
+        
+        /* [수정] 상단 여백 확보 및 중앙 정렬 최적화 */
+        .content { padding: 40px 24px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
 
-        /* 로고 영역 설정 */
+        /* 로고 영역 */
         .logo-wrapper { 
             width: 320px; 
             height: 260px; 
@@ -31,7 +33,6 @@
             justify-content: center; 
             align-items: flex-start; 
             background: white; 
-            margin-top: 20px; /* 상단 여백 추가 */
             position: relative;
             z-index: 1;
         }
@@ -47,13 +48,13 @@
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.03); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
         .pulse { animation: pulse 2s infinite ease-in-out; }
 
-        /* [수정] 입력창과 버튼 그룹을 아래로 2cm(약 75px) 이동 */
+        /* [수정] 하단 여백을 30% 줄이기 위해 마진값 조정 (75px -> 45px) */
         .auth-form {
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 75px; /* 로고와의 간격을 2cm 정도 벌림 */
+            margin-top: 45px; 
             position: relative;
             z-index: 5;
         }
