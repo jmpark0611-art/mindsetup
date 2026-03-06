@@ -25,11 +25,18 @@
             align-items: center; 
         }
        
-        .logo { 
-            width: 240px; 
-            height: auto; 
-            margin-bottom: 20px; 
-            display: block; 
+        .logo-text {
+            font-size: 3.2rem;
+            font-weight: bold;
+            color: var(--p);
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+            text-shadow: 0 2px 10px rgba(90,103,216,0.3);
+        }
+        .logo-heart {
+            font-size: 2.8rem;
+            margin-bottom: 30px;
+            color: #ff6b6b;
         }
         .title { 
             color: var(--p); 
@@ -81,7 +88,7 @@
             margin-top:15px; 
         }
 
-        /* 나머지 스타일 (grid-container, choice-btn, profile-section 등)은 그대로 유지 */
+        /* 나머지 스타일 (grid-container, choice-btn, profile-section 등) 그대로 */
         .grid-container {
             width: 100%;
             display: grid;
@@ -131,16 +138,16 @@
    
     <div id="pg-auth" class="page show">
         <div class="content">
-            <!-- 로고를 화면 중앙에 크게 배치 (첫 화면 메인 로고) -->
-            <img src="https://files.oaiusercontent.com/file-8d2c3a0d-5e3c-4a1b-8f5a-7d7c0e9d8f2c?se=2026-03-07T01%3A00%3A00Z&sp=r&sv=2024-08-04&sr=b&rscca=1&sig=example-signature" alt="MINDWAVE 로고" class="logo">
+            <!-- 로고를 텍스트 + 하트로 대체 (이미지 깨짐 방지) -->
+            <div class="logo-text">MINDWAVE</div>
+            <div class="logo-heart">❤️</div>
             
             <h1 class="title">마음 주파수</h1>
             
             <input type="text" id="userid" class="box" placeholder="아이디 (닉네임)" maxlength="12">
             <input type="password" id="userpw" class="box" placeholder="비밀번호">
-            <input type="password" id="userpw-confirm" class="box" placeholder="비밀번호 확인">
-            <button class="btn" onclick="signup()">회원가입</button>
-            <button class="btn-sub" onclick="login()">로그인</button>
+            <button class="btn" onclick="login()">로그인</button>
+            <button class="btn-sub" onclick="signup()">회원가입</button>
             <button class="link-btn" onclick="go('pg-reset-pw')">비밀번호 초기화</button>
         </div>
     </div>
@@ -156,8 +163,70 @@
         </div>
     </div>
 
-    <!-- pg-setup, pg-waiting, pg-chat, pg-review, pg-admin 등 나머지 화면은 변경 없음 -->
-    <!-- (이전 코드 그대로 복사해서 붙이면 돼요) -->
+    <!-- pg-setup 화면 (기존 그대로) -->
+    <div id="pg-setup" class="page">
+        <div class="content" style="padding-top: 30px;">
+            <div class="profile-section">
+                <h3 style="margin-bottom: 10px; color: #444; font-size: 1.1rem;">나를 소개해주세요</h3>
+                <div class="my-id-display" id="my-id-display"></div>
+                
+                <div class="profile-container">
+                    <div class="preview-container">
+                        <img id="profile-preview" class="profile-pic" src="" alt="프로필 사진">
+                        <input type="file" id="profile-upload" accept="image/*" onchange="previewProfile(event)">
+                    </div>
+                    <button class="upload-btn" onclick="document.getElementById('profile-upload').click()">사진 업로드 / 변경</button>
+                </div>
+                <p style="color:#777; font-size:0.8rem; margin: 6px 0;">JPG/PNG, 최대 5MB</p>
+                <textarea id="bio-input" class="bio-input" placeholder="어떤 마음을 나누고 싶으신가요? 😊"></textarea>
+            </div>
+
+            <p style="align-self: flex-start; margin-bottom: 10px; font-weight: bold; color: #555; font-size: 1rem;">현재 내 감정</p>
+            <div class="grid-container" id="emotion-grid">
+                <button class="choice-btn" data-value="번아웃" onclick="selectEmotion(this)">
+                    <div class="choice-icon">🔥</div>
+                    <div class="choice-label">번아웃</div>
+                </button>
+                <button class="choice-btn" data-value="외로움" onclick="selectEmotion(this)">
+                    <div class="choice-icon">☁️</div>
+                    <div class="choice-label">외로움</div>
+                </button>
+                <button class="choice-btn" data-value="슬픔" onclick="selectEmotion(this)">
+                    <div class="choice-icon">🌧️</div>
+                    <div class="choice-label">슬픔</div>
+                </button>
+                <button class="choice-btn" data-value="화남" onclick="selectEmotion(this)">
+                    <div class="choice-icon">⚡</div>
+                    <div class="choice-label">화남</div>
+                </button>
+            </div>
+
+            <p style="align-self: flex-start; margin: 35px 0 10px; font-weight: bold; color: #555; font-size: 1rem;">대화 상대의 성향</p>
+            <div class="grid-container" id="persona-grid">
+                <button class="choice-btn" data-value="공감형" onclick="selectPersona(this)">
+                    <div class="choice-icon">🤝</div>
+                    <div class="choice-label">공감형</div>
+                </button>
+                <button class="choice-btn" data-value="조언형" onclick="selectPersona(this)">
+                    <div class="choice-icon">💡</div>
+                    <div class="choice-label">조언형</div>
+                </button>
+                <button class="choice-btn" data-value="침묵형" onclick="selectPersona(this)">
+                    <div class="choice-icon">🤫</div>
+                    <div class="choice-label">침묵형</div>
+                </button>
+                <button class="choice-btn" data-value="일상대화" onclick="selectPersona(this)">
+                    <div class="choice-icon">☕</div>
+                    <div class="choice-label">일상대화</div>
+                </button>
+            </div>
+
+            <button class="btn" onclick="saveProfileAndMatch()">대화 시작하기</button>
+            <button id="btn-admin" class="btn-sub" style="display:none; margin-top:20px;" onclick="goAdmin()">관리자 모드 접속</button>
+        </div>
+    </div>
+
+    <!-- pg-waiting, pg-chat, pg-review, pg-admin 등은 이전과 동일하게 유지 -->
 </div>
 
 <script>
@@ -189,10 +258,8 @@
     function signup() {
         const id = document.getElementById('userid').value.trim();
         const pw = document.getElementById('userpw').value.trim();
-        const pwConfirm = document.getElementById('userpw-confirm').value.trim();
 
-        if (!id || !pw || !pwConfirm) return alert("모든 항목을 입력해주세요.");
-        if (pw !== pwConfirm) return alert("비밀번호가 일치하지 않습니다.");
+        if (!id || !pw) return alert("아이디와 비밀번호를 모두 입력해주세요.");
 
         db.ref('users/' + id).once('value', snap => {
             if (snap.exists()) return alert("이미 사용 중인 아이디입니다.");
@@ -206,7 +273,6 @@
                 alert("회원가입 완료! 로그인 해주세요.");
                 document.getElementById('userid').value = '';
                 document.getElementById('userpw').value = '';
-                document.getElementById('userpw-confirm').value = '';
             });
         });
     }
@@ -243,7 +309,6 @@
         });
     }
 
-    // 나머지 함수들 (loadProfile, saveProfileAndMatch 등)은 이전과 동일하게 유지
     function loadProfile() {
         if (!currentUser.id) return;
         db.ref('users/' + currentUser.id + '/profile').once('value', snap => {
@@ -268,22 +333,28 @@
     }
 
     function saveProfileAndMatch() {
+        if (!currentUser.id) return alert("로그인 상태를 확인해주세요.");
+
+        const bio = document.getElementById('bio-input').value.trim();
+        const profileUpdates = {};
+        if (bio) profileUpdates.bio = bio;
+
+        if (Object.keys(profileUpdates).length > 0) {
+            db.ref('users/' + currentUser.id + '/profile').update({
+                ...profileUpdates,
+                updatedAt: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        if (!selectedEmotion) return alert("현재 감정을 선택해주세요.");
+        if (!selectedPersona) return alert("대화 상대의 성향을 선택해주세요.");
+
+        go('pg-waiting');
+
         // ... 기존 매칭 로직 그대로 ...
     }
 
-    function selectEmotion(btn) {
-        document.querySelectorAll('#emotion-grid .choice-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedEmotion = btn.dataset.value;
-    }
-
-    function selectPersona(btn) {
-        document.querySelectorAll('#persona-grid .choice-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        selectedPersona = btn.dataset.value;
-    }
-
-    // ... 나머지 함수들 (initChat, send, renderMsg 등) 이전과 동일 ...
+    // 나머지 함수들 (selectEmotion, selectPersona, initChat, send 등)은 이전과 동일
 </script>
 </body>
 </html>
