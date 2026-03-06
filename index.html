@@ -20,20 +20,20 @@
         .app { background: white; width: 100%; max-width: 450px; height: 100%; position: relative; margin: 0 auto; display: flex; flex-direction: column; }
         .page { position: absolute; inset: 0; display: none; flex-direction: column; background: white; z-index: 10; overflow-y: auto; opacity: 0; transition: var(--ani); }
         .page.show { display: flex !important; opacity: 1; }
-        .content { padding: 0 24px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .content { padding: 0 24px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; }
 
-        /* [수정] 로고 영역이 버튼을 가리지 않도록 높이 정밀 조정 */
+        /* 로고 영역 설정 */
         .logo-wrapper { 
             width: 320px; 
-            height: 260px; /* 버튼과 겹치지 않게 높이 재조정 */
+            height: 260px; 
             overflow: hidden; 
             display: flex; 
             justify-content: center; 
             align-items: flex-start; 
             background: white; 
-            margin-bottom: 5px;
+            margin-top: 20px; /* 상단 여백 추가 */
             position: relative;
-            z-index: 1; /* 버튼보다 아래에 위치 */
+            z-index: 1;
         }
         .logo-img { 
             width: 100%; 
@@ -47,18 +47,29 @@
         @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.03); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
         .pulse { animation: pulse 2s infinite ease-in-out; }
 
-        /* [중요] 모든 입력창과 버튼이 로고보다 위에 오도록 설정 */
-        .box, .btn, .btn-sub { position: relative; z-index: 5; }
+        /* [수정] 입력창과 버튼 그룹을 아래로 2cm(약 75px) 이동 */
+        .auth-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 75px; /* 로고와의 간격을 2cm 정도 벌림 */
+            position: relative;
+            z-index: 5;
+        }
 
         .box { width: 100%; max-width: 360px; padding: 18px; margin-bottom: 12px; border: 1.5px solid #f0f0f0; border-radius: 16px; font-size: 1rem; background: #fafafa; outline: none; transition: var(--ani); }
         .box:focus { border-color: var(--p); background: white; }
-        .btn { width: 100%; max-width: 360px; padding: 18px; background: var(--p); color: white; border: none; border-radius: 18px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin: 10px 0; box-shadow: 0 4px 12px rgba(90, 103, 216, 0.2); }
+        .btn { width: 100%; max-width: 360px; padding: 18px; background: var(--p); color: white; border: none; border-radius: 18px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin: 10px 0; box-shadow: 0 4px 12px rgba(90, 103, 216, 0.2); transition: var(--ani); }
+        .btn:active { transform: scale(0.98); }
         .btn-sub { width: 100%; max-width: 360px; padding: 18px; background: #f8f9fa; color: #777; border: none; border-radius: 18px; font-weight: bold; cursor: pointer; }
         
-        .grid-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+        /* 설정 페이지 그리드 */
+        .grid-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; margin-top: 10px; }
         .choice-btn { background: white; border: 1.5px solid #f0f0f0; border-radius: 15px; padding: 15px; cursor: pointer; transition: var(--ani); display: flex; align-items: center; gap: 8px; font-size: 0.95rem; justify-content: center; }
         .choice-btn.selected { background: var(--p); color: white; border-color: var(--p); font-weight: bold; transform: translateY(-2px); }
         
+        /* 채팅 UI */
         .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5f5f5; }
         .guide-box { background: #f0f2ff; color: var(--p); font-size: 0.8rem; padding: 10px 15px; border-radius: 20px; margin-bottom: 10px; font-weight: 500; text-align: center; }
         #view { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fcfcfc; }
@@ -78,14 +89,17 @@
         <div class="logo-wrapper">
             <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img">
         </div>
-        <input type="text" id="userid" class="box" placeholder="아이디">
-        <input type="password" id="userpw" class="box" placeholder="비밀번호">
-        <button class="btn" onclick="login()">시작하기</button>
-        <button class="btn-sub" onclick="signup()">새 계정 만들기</button>
+        
+        <div class="auth-form">
+            <input type="text" id="userid" class="box" placeholder="아이디">
+            <input type="password" id="userpw" class="box" placeholder="비밀번호">
+            <button class="btn" onclick="login()">시작하기</button>
+            <button class="btn-sub" onclick="signup()">새 계정 만들기</button>
+        </div>
     </div></div>
 
     <div id="pg-setup" class="page"><div class="content">
-        <div id="my-id-display" style="font-weight:bold; color:var(--p); margin-bottom:25px; font-size:1.2rem;"></div>
+        <div id="my-id-display" style="font-weight:bold; color:var(--p); margin-top:20px; margin-bottom:25px; font-size:1.2rem;"></div>
         <p style="align-self:flex-start; font-weight:bold; margin-bottom:12px; color:#666;">지금 내 마음은 어떤가요?</p>
         <div class="grid-container">
             <button class="choice-btn" onclick="selE(this, '번아웃')">🔥 번아웃</button>
@@ -100,14 +114,14 @@
             <button class="choice-btn" onclick="selP(this, '침묵형')">🤫 침묵형</button>
             <button class="choice-btn" onclick="selP(this, '일상')">☕ 일상</button>
         </div>
-        <button class="btn" onclick="startMatching()">대화 시작하기</button>
+        <button class="btn" style="margin-top:20px;" onclick="startMatching()">대화 시작하기</button>
     </div></div>
 
     <div id="pg-waiting" class="page"><div class="content">
         <div class="logo-wrapper pulse">
             <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img">
         </div>
-        <h2 style="color:var(--p); margin-top:10px;">마음 주파수 찾는 중...</h2>
+        <h2 style="color:var(--p); margin-top:30px;">마음 주파수 찾는 중...</h2>
         <p style="color:#aaa; margin-top:10px; font-size:0.9rem;">나와 비슷한 결의 친구를 연결하고 있어요</p>
     </div></div>
 
@@ -123,7 +137,7 @@
     </div>
 
     <div id="pg-review" class="page"><div class="content">
-        <h3 style="margin-bottom:10px;">마음에 담고 싶은 문장</h3>
+        <h3 style="margin-bottom:10px; margin-top:20px;">마음에 담고 싶은 문장</h3>
         <p style="color:#999; font-size:0.9rem; margin-bottom:20px;">터치하면 보관함에 저장됩니다</p>
         <div id="review-list" style="width:100%;"></div>
         <button class="btn-sub" style="margin-top:20px;" onclick="go('pg-setup')">저장하지 않고 나가기</button>
