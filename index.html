@@ -13,48 +13,60 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     
     <style>
-        :root { --p: #5a67d8; --bg: #ffffff; }
+        :root { --p: #5a67d8; --bg: #ffffff; --ani: all 0.3s ease-out; }
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; width: 100%; overflow: hidden; position: fixed; background: var(--bg); font-family: 'Apple SD Gothic Neo', sans-serif; }
+        html, body { height: 100%; width: 100%; overflow: hidden; position: fixed; background: var(--bg); font-family: 'Apple SD Gothic Neo', sans-serif; color: #333; }
         
+        /* 앱 컨테이너 및 화면 전환 효과 */
         .app { background: white; width: 100%; max-width: 450px; height: 100%; position: relative; margin: 0 auto; display: flex; flex-direction: column; }
+        .page { position: absolute; inset: 0; display: none; flex-direction: column; background: white; z-index: 10; overflow-y: auto; opacity: 0; transition: var(--ani); }
+        .page.show { display: flex !important; opacity: 1; }
+        .content { padding: 0 24px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+
+        /* 로고 보정 기술: 회색 배경 날리기 */
+        .logo-wrapper { width: 100%; padding: 20px 0; display: flex; flex-direction: column; align-items: center; background: white; }
+        .logo-img { 
+            width: 250px; height: auto; 
+            mix-blend-mode: multiply; /* 회색 바탕을 흰색 배경에 흡수시킴 */
+            filter: contrast(1.1); /* 로고를 더 선명하게 */
+            display: block;
+        }
+
+        /* 로딩 애니메이션 */
+        @keyframes pulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); opacity: 0.8; } }
+        .pulse { animation: pulse 2s infinite ease-in-out; }
+
+        /* 공통 UI 요소 */
+        .box { width: 100%; max-width: 360px; padding: 18px; margin-bottom: 12px; border: 1.5px solid #f0f0f0; border-radius: 16px; font-size: 1rem; background: #fafafa; outline: none; transition: var(--ani); }
+        .box:focus { border-color: var(--p); background: white; }
+        .btn { width: 100%; max-width: 360px; padding: 18px; background: var(--p); color: white; border: none; border-radius: 18px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin: 10px 0; box-shadow: 0 4px 12px rgba(90, 103, 216, 0.2); }
+        .btn-sub { width: 100%; max-width: 360px; padding: 18px; background: #f8f9fa; color: #777; border: none; border-radius: 18px; font-weight: bold; cursor: pointer; }
         
-        .page { position: absolute; inset: 0; display: none; flex-direction: column; background: white; z-index: 10; overflow-y: auto; }
-        .show { display: flex !important; }
-        .content { padding: 0 24px 40px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; background: white; }
+        .grid-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+        .choice-btn { background: white; border: 1.5px solid #f0f0f0; border-radius: 15px; padding: 15px; cursor: pointer; transition: var(--ani); display: flex; align-items: center; gap: 8px; font-size: 0.95rem; justify-content: center; }
+        .choice-btn.selected { background: var(--p); color: white; border-color: var(--p); font-weight: bold; transform: translateY(-2px); }
         
-        /* 로고 영역: 회색 바탕 완전 제거 및 크기 확대 */
-        .logo-wrapper { width: 100%; padding: 30px 0 10px; display: flex; flex-direction: column; align-items: center; background: white; }
-        .logo-img { width: 240px; height: auto; display: block; background: white; border: none; } /* 기존보다 1cm가량 키운 240px 적용 */
-        
-        .box { width: 100%; max-width: 360px; padding: 16px; margin-bottom: 12px; border: 1.5px solid #eee; border-radius: 12px; font-size: 1rem; background: #fafafa; outline: none; }
-        .box:focus { border-color: var(--p); }
-        
-        .btn { width: 100%; max-width: 360px; padding: 18px; background: var(--p); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin: 10px 0; }
-        .btn-sub { width: 100%; max-width: 360px; padding: 18px; background: #f5f5f5; color: #666; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
-        
-        .grid-container { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 25px; }
-        .choice-btn { background: white; border: 1.5px solid #eee; border-radius: 12px; padding: 12px; cursor: pointer; font-size: 0.95rem; justify-content: center; display: flex; align-items: center; gap: 8px; }
-        .choice-btn.selected { background: var(--p); color: white; border-color: var(--p); font-weight: bold; }
-        
-        .header { background: white; color: #333; padding: 15px; display: flex; justify-content: space-between; align-items: center; font-weight: bold; border-bottom: 1px solid #eee; }
-        #view { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fdfdfd; }
-        .bbl { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; line-height: 1.4; }
-        .me { background: var(--p); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-        .ot { background: #f0f0f0; color: #333; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .bar { padding: 12px; border-top: 1px solid #eee; display: flex; gap: 8px; background: white; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
-        #in { flex: 1; padding: 12px 18px; border: 1.5px solid #eee; border-radius: 25px; background: #f9f9f9; }
+        /* 채팅 UI */
+        .header { background: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f5f5f5; }
+        .guide-box { background: #f0f2ff; color: var(--p); font-size: 0.8rem; padding: 8px 15px; border-radius: 20px; margin-bottom: 10px; font-weight: 500; }
+        #view { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fcfcfc; }
+        .bbl { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; position: relative; }
+        .me { background: var(--p); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .ot { background: white; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #eee; }
+        .bar { padding: 15px; border-top: 1px solid #f5f5f5; display: flex; gap: 10px; background: white; }
+        #in { flex: 1; padding: 12px 20px; border: 1px solid #eee; border-radius: 30px; background: #f9f9f9; font-size: 16px; }
+
+        /* 문장 저장 리스트 */
+        .quote-item { background: #f8f9fa; padding: 15px; margin-bottom: 10px; border-radius: 12px; text-align: left; border-left: 4px solid var(--p); cursor: pointer; }
     </style>
 </head>
 <body>
 <div class="app">
     <div id="pg-auth" class="page show"><div class="content">
         <div class="logo-wrapper">
-            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" 
-                 alt="로고" class="logo-img" 
-                 onerror="this.src='https://api.dicebear.com/7.x/identicon/svg?seed=mindwave';">
+            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img">
         </div>
-        <div style="height: 10px;"></div> 
+        <div style="height: 20px;"></div> 
         <input type="text" id="userid" class="box" placeholder="아이디">
         <input type="password" id="userpw" class="box" placeholder="비밀번호">
         <button class="btn" onclick="login()">시작하기</button>
@@ -62,15 +74,15 @@
     </div></div>
 
     <div id="pg-setup" class="page"><div class="content">
-        <div id="my-id-display" style="font-weight:bold; color:var(--p); margin-bottom:30px; font-size:1.3rem;"></div>
-        <p style="align-self:flex-start; font-weight:bold; margin-bottom:12px; color:#444;">내 마음 상태</p>
+        <div id="my-id-display" style="font-weight:bold; color:var(--p); margin-bottom:25px; font-size:1.2rem;"></div>
+        <p style="align-self:flex-start; font-weight:bold; margin-bottom:12px; color:#666;">지금 내 마음은 어떤가요?</p>
         <div class="grid-container">
             <button class="choice-btn" onclick="selE(this, '번아웃')">🔥 번아웃</button>
             <button class="choice-btn" onclick="selE(this, '외로움')">☁️ 외로움</button>
             <button class="choice-btn" onclick="selE(this, '슬픔')">🌧️ 슬픔</button>
             <button class="choice-btn" onclick="selE(this, '화남')">⚡ 화남</button>
         </div>
-        <p style="align-self:flex-start; font-weight:bold; margin-top:20px; margin-bottom:12px; color:#444;">원하는 대화 성향</p>
+        <p style="align-self:flex-start; font-weight:bold; margin-top:10px; margin-bottom:12px; color:#666;">어떤 친구를 찾을까요?</p>
         <div class="grid-container">
             <button class="choice-btn" onclick="selP(this, '공감형')">🤝 공감형</button>
             <button class="choice-btn" onclick="selP(this, '조언형')">💡 조언형</button>
@@ -81,22 +93,152 @@
     </div></div>
 
     <div id="pg-waiting" class="page"><div class="content">
-        <div class="logo-wrapper">
-            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img" style="opacity:0.8;">
+        <div class="logo-wrapper pulse">
+            <img src="https://raw.githubusercontent.com/jmpark0611-art/mindsetup/main/mindwave-logo.png.png" class="logo-img">
         </div>
-        <h2 style="color:var(--p); margin-top:20px;">친구 찾는 중...</h2>
-        <p style="color:#999; margin-top:10px;">잠시만 기다려주세요</p>
+        <h2 style="color:var(--p); margin-top:30px;">마음 주파수 찾는 중...</h2>
+        <p style="color:#aaa; margin-top:10px;">나와 비슷한 결의 친구를 연결하고 있어요</p>
     </div></div>
 
     <div id="pg-chat" class="page">
-        <div class="header"><span>실시간 대화</span><button onclick="endChat()" style="background:none; border:none; color:var(--p); font-weight:bold;">종료</button></div>
-        <div id="view"></div>
-        <div class="bar"><input type="text" id="in" placeholder="메시지를 입력하세요" onkeypress="if(event.key==='Enter') send()"><button onclick="send()" style="border:none; background:none; color:var(--p); font-weight:bold; padding:0 10px;">전송</button></div>
+        <div class="header">
+            <span style="font-weight:800; color:var(--p);">CONNECTED 📡</span>
+            <button onclick="endChat()" style="background:none; border:none; color:#999; font-weight:bold;">종료</button>
+        </div>
+        <div id="view">
+            <div class="guide-box" id="chat-guide">아이스브레이킹: 두 분 모두 '번아웃' 상태네요. 오늘 가장 힘들었던 일이 뭐였나요?</div>
+        </div>
+        <div class="bar"><input type="text" id="in" placeholder="따뜻한 말 한마디 건네보세요" onkeypress="if(event.key==='Enter') send()"><button onclick="send()" style="border:none; background:none; color:var(--p); font-weight:bold;">전송</button></div>
     </div>
+
+    <div id="pg-review" class="page"><div class="content">
+        <h3 style="margin-bottom:10px;">마음에 담고 싶은 문장</h3>
+        <p style="color:#999; font-size:0.9rem; margin-bottom:20px;">터치하면 보관함에 저장됩니다</p>
+        <div id="review-list" style="width:100%;"></div>
+        <button class="btn-sub" style="margin-top:20px;" onclick="go('pg-setup')">저장하지 않고 나가기</button>
+    </div></div>
 </div>
 
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyCQKm1ZWeMN_YFpP3Cs_LdcQV8vRFcALfs",
         authDomain: "mindsetup.firebaseapp.com",
-        databaseURL: "https://mindsetup-
+        databaseURL: "https://mindsetup-default-rtdb.firebaseio.com",
+        projectId: "mindsetup",
+        storageBucket: "mindsetup.firebasestorage.app",
+        messagingSenderId: "484997102046",
+        appId: "1:484997102046:web:8acdb93d3a03fc6c14054f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let currentUser = { id: "", nick: "" };
+    let myRoom = "";
+    let selectedEmotion = "";
+    let selectedPersona = "";
+    let chatLog = [];
+
+    function go(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
+        setTimeout(() => {
+            const target = document.getElementById(id);
+            if(target) target.classList.add('show');
+        }, 50);
+    }
+
+    function signup() {
+        const id = document.getElementById('userid').value.trim();
+        const pw = document.getElementById('userpw').value.trim();
+        if(!id || !pw) return alert("아이디와 비밀번호를 입력해주세요.");
+        db.ref('users/' + id).set({ pw: pw }).then(() => alert("가입 완료! 로그인 후 이용해주세요."));
+    }
+
+    function login() {
+        const id = document.getElementById('userid').value.trim();
+        const pw = document.getElementById('userpw').value.trim();
+        db.ref('users/' + id).once('value', snap => {
+            if(snap.exists() && snap.val().pw === pw) {
+                currentUser = { id: id, nick: id };
+                document.getElementById('my-id-display').innerText = id + "님의 공간";
+                go('pg-setup');
+            } else { alert("로그인 정보를 다시 확인해주세요."); }
+        });
+    }
+
+    function selE(b, v) { 
+        document.querySelectorAll('#pg-setup .grid-container:first-of-type .choice-btn').forEach(x => x.classList.remove('selected'));
+        b.classList.add('selected'); selectedEmotion = v; 
+    }
+    function selP(b, v) { 
+        document.querySelectorAll('#pg-setup .grid-container:last-of-type .choice-btn').forEach(x => x.classList.remove('selected'));
+        b.classList.add('selected'); selectedPersona = v; 
+    }
+
+    function startMatching() {
+        if(!selectedEmotion || !selectedPersona) return alert("감정과 친구 성향을 골라주세요!");
+        go('pg-waiting');
+        const qRef = db.ref('match_queue');
+        qRef.limitToFirst(1).once('value', snap => {
+            if(snap.exists()){
+                const key = Object.keys(snap.val())[0];
+                myRoom = snap.val()[key].roomID;
+                qRef.child(key).remove().then(() => initChat());
+            } else {
+                myRoom = "R_" + Date.now();
+                qRef.push({ roomID: myRoom, emotion: selectedEmotion });
+                const rRef = db.ref('rooms/' + myRoom + '/users');
+                rRef.on('child_added', () => {
+                    rRef.once('value', s => { if(s.numChildren() >= 2) { rRef.off(); initChat(); } });
+                });
+                rRef.push(currentUser.nick);
+            }
+        });
+    }
+
+    function initChat() {
+        chatLog = [];
+        document.getElementById('view').innerHTML = `<div class="guide-box">가이드: 두 분 모두 마음을 터놓고 편하게 대화해보세요.</div>`;
+        go('pg-chat');
+        const cRef = db.ref('rooms/' + myRoom + '/messages');
+        cRef.off();
+        cRef.on('child_added', snap => {
+            const m = snap.val();
+            const side = m.sender === currentUser.nick ? 'me' : 'ot';
+            if(side === 'ot') chatLog.push(m.text);
+            const d = document.createElement('div');
+            d.className = "bbl " + side; d.innerText = m.text;
+            document.getElementById('view').appendChild(d);
+            document.getElementById('view').scrollTop = 99999;
+        });
+    }
+
+    function send() {
+        const i = document.getElementById('in');
+        if(i.value.trim()) {
+            db.ref('rooms/' + myRoom + '/messages').push({ sender: currentUser.nick, text: i.value.trim() });
+            i.value = '';
+        }
+    }
+
+    function endChat() {
+        if(!confirm("대화를 종료하고 소중한 문장을 저장할까요?")) return;
+        if(chatLog.length === 0) { go('pg-setup'); return; }
+        
+        const list = document.getElementById('review-list');
+        list.innerHTML = '';
+        chatLog.forEach(text => {
+            const div = document.createElement('div');
+            div.className = 'quote-item';
+            div.innerText = text;
+            div.onclick = () => {
+                db.ref('saved_quotes/' + currentUser.id).push({ text: text, date: new Date().toLocaleString() });
+                alert("마음 보관함에 저장되었습니다!");
+                go('pg-setup');
+            };
+            list.appendChild(div);
+        });
+        go('pg-review');
+    }
+</script>
+</body>
+</html>
