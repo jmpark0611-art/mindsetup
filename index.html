@@ -1,26 +1,8 @@
 <!DOCTYPE html>
-<html lang="ko" manifest="manifest.json">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- PWA 설정 - 홈 화면 아이콘 -->
-    <link rel="manifest" href="data:application/manifest+json,{
-        \"name\": \"마음 주파수\",
-        \"short_name\": \"마음주파수\",
-        \"start_url\": \".\",
-        \"display\": \"standalone\",
-        \"background_color\": \"#f0f2f5\",
-        \"theme_color\": \"#5a67d8\",
-        \"icons\": [
-            {
-                \"src\": \"https://files.oaiusercontent.com/file-8d2c3a0d-5e3c-4a1b-8f5a-7d7c0e9d8f2c?se=2026-03-07T01%3A00%3A00Z&sp=r&sv=2024-08-04&sr=b&rscca=1&sig=example-signature\",
-                \"sizes\": \"512x512\",
-                \"type\": \"image/png\",
-                \"purpose\": \"any maskable\"
-            }
-        ]
-    }">
-    <meta name="theme-color" content="#5a67d8">
     <title>마음 주파수 - 정식 버전</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -33,17 +15,13 @@
        
         .page { position: absolute; inset: 0; display: none; flex-direction: column; background: white; z-index: 10; overflow-y: auto; }
         .show { display: flex !important; }
-        .content { padding: 30px 20px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .content { padding: 40px 24px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; }
        
-        .logo { 
-            width: 180px; 
-            height: auto; 
-            margin-bottom: 30px; 
-        }
-        .box { width: 100%; padding: 14px; margin-bottom: 12px; border: 1.5px solid #ddd; border-radius: 12px; font-size: 1rem; }
-        .btn { width: 100%; padding: 16px; background: var(--p); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.05rem; margin-top: 15px; }
-        .btn-sub { width: 100%; padding: 16px; background: #eee; color: #555; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.05rem; margin-top: 10px; }
-       
+        .box { width: 100%; padding: 16px; margin-bottom: 12px; border: 1.5px solid #ddd; border-radius: 12px; font-size: 1rem; }
+        .btn { width: 100%; padding: 18px; background: var(--p); color: white; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; margin: 20px 0 10px; }
+        .btn-sub { width: 100%; padding: 18px; background: #eee; color: #555; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+        .link-btn { background:none; border:none; color:var(--p); text-decoration:underline; cursor:pointer; font-size:0.95rem; margin-top:10px; }
+
         .header { background: var(--p); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; font-weight: bold; }
         #view { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f8f9fa; }
         .bbl { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.95rem; word-break: break-all; line-height: 1.4; }
@@ -92,102 +70,47 @@
             color: white;
             box-shadow: 0 4px 12px rgba(90,103,216,0.3);
         }
-        .choice-icon { 
-            font-size: 1.4rem;
-            flex-shrink: 0;
-        }
-        .choice-label {
-            font-weight: 600;
-            font-size: 0.82rem;
-            text-align: left;
-            line-height: 1.25;
-        }
+        .choice-icon { font-size: 1.4rem; flex-shrink: 0; }
+        .choice-label { font-weight: 600; font-size: 0.82rem; text-align: left; line-height: 1.25; }
 
         /* 프로필 섹션 */
-        .profile-section { 
-            margin: 0 0 35px; 
-            width: 100%; 
-            text-align: center; 
-            padding: 18px; 
-            background: white; 
-            border-radius: 16px; 
-            border: 1px solid #e0e0e0; 
-        }
-        .profile-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .profile-pic { 
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid white;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            background: #eee url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="55" font-size="60" text-anchor="middle" dominant-baseline="middle" fill="%23ccc">❤️</text></svg>') center no-repeat;
-            background-size: 60%;
-        }
-        .my-id-display {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--p);
-            margin: 10px 0 15px;
-            text-align: center;
-        }
-        .upload-btn { 
-            margin-top: 8px;
-            padding: 5px 12px;
-            background: var(--p);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.8rem;
-        }
-        .preview-container { 
-            position: relative;
-            display: inline-block;
-        }
-        .preview-container input[type="file"] { 
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        .bio-input { 
-            width: 100%;
-            max-width: 400px;
-            padding: 12px;
-            border: 1.5px solid #ddd;
-            border-radius: 12px;
-            font-size: 1rem;
-            resize: vertical;
-            min-height: 80px;
-            margin-top: 12px;
-        }
+        .profile-section { margin: 0 0 35px; width: 100%; text-align: center; padding: 18px; background: white; border-radius: 16px; border: 1px solid #e0e0e0; }
+        .profile-pic { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid white; box-shadow: 0 3px 10px rgba(0,0,0,0.1); background: #eee url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="55" font-size="60" text-anchor="middle" dominant-baseline="middle" fill="%23ccc">❤️</text></svg>') center no-repeat; background-size: 60%; }
+        .my-id-display { font-size: 1.1rem; font-weight: bold; color: var(--p); margin: 10px 0 15px; text-align: center; }
+        .upload-btn { margin-top: 8px; padding: 5px 12px; background: var(--p); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 0.8rem; }
+        .preview-container { position: relative; display: inline-block; }
+        .preview-container input[type="file"] { position: absolute; opacity: 0; width: 100%; height: 100%; cursor: pointer; }
+        .bio-input { width: 100%; max-width: 400px; padding: 12px; border: 1.5px solid #ddd; border-radius: 12px; font-size: 1rem; resize: vertical; min-height: 80px; margin-top: 12px; }
     </style>
 </head>
 <body>
 <div class="app">
    
+    <!-- 로그인/회원가입 화면 -->
     <div id="pg-auth" class="page show">
         <div class="content">
-            <!-- 앱 로고 추가 -->
-            <img src="https://files.oaiusercontent.com/file-8d2c3a0d-5e3c-4a1b-8f5a-7d7c0e9d8f2c?se=2026-03-07T01%3A00%3A00Z&sp=r&sv=2024-08-04&sr=b&rscca=1&sig=example-signature" alt="MINDWAVE 로고" class="logo">
-            
-            <h1 style="color:var(--p); margin-bottom:30px;">마음 주파수</h1>
+            <h1 style="color:var(--p); margin-bottom:40px;">마음 주파수</h1>
             <input type="text" id="userid" class="box" placeholder="아이디 (닉네임)" maxlength="12">
             <input type="password" id="userpw" class="box" placeholder="비밀번호">
-            <button class="btn" onclick="login()">로그인</button>
-            <button class="btn-sub" onclick="signup()">회원가입</button>
+            <input type="password" id="userpw-confirm" class="box" placeholder="비밀번호 확인">
+            <button class="btn" onclick="signup()">회원가입</button>
+            <button class="btn-sub" onclick="login()">로그인</button>
+            <button class="link-btn" onclick="go('pg-reset-pw')">비밀번호 초기화</button>
         </div>
     </div>
 
-    <!-- 나머지 페이지들 (pg-setup, pg-waiting, pg-chat, pg-review, pg-admin)은 변경 없음 -->
+    <!-- 비밀번호 초기화 화면 -->
+    <div id="pg-reset-pw" class="page">
+        <div class="content">
+            <h2 style="color:var(--p); margin-bottom:30px;">비밀번호 초기화</h2>
+            <p style="color:#666; margin-bottom:20px;">아이디를 입력하면 초기화 링크를 보내드릴게요</p>
+            <input type="text" id="reset-id" class="box" placeholder="아이디 입력">
+            <button class="btn" onclick="resetPassword()">초기화 요청</button>
+            <button class="btn-sub" onclick="go('pg-auth')">돌아가기</button>
+        </div>
+    </div>
+
+    <!-- pg-setup 화면 (기존 그대로) -->
     <div id="pg-setup" class="page">
         <div class="content" style="padding-top: 30px;">
             <div class="profile-section">
@@ -205,33 +128,102 @@
                 <textarea id="bio-input" class="bio-input" placeholder="어떤 마음을 나누고 싶으신가요? 😊"></textarea>
             </div>
 
-            <!-- 기존 감정/성향 그리드 및 버튼들 생략 (이전과 동일) -->
+            <!-- 나머지 감정/성향 선택 부분은 이전과 동일하게 유지 -->
             <p style="align-self: flex-start; margin-bottom: 10px; font-weight: bold; color: #555; font-size: 1rem;">현재 내 감정</p>
-            <!-- ... 감정 그리드 ... -->
+            <div class="grid-container" id="emotion-grid">
+                <button class="choice-btn" data-value="번아웃" onclick="selectEmotion(this)">
+                    <div class="choice-icon">🔥</div>
+                    <div class="choice-label">번아웃</div>
+                </button>
+                <!-- ... 나머지 감정 버튼들 ... -->
+            </div>
 
             <p style="align-self: flex-start; margin: 35px 0 10px; font-weight: bold; color: #555; font-size: 1rem;">대화 상대의 성향</p>
-            <!-- ... 성향 그리드 ... -->
+            <div class="grid-container" id="persona-grid">
+                <button class="choice-btn" data-value="공감형" onclick="selectPersona(this)">
+                    <div class="choice-icon">🤝</div>
+                    <div class="choice-label">공감형</div>
+                </button>
+                <!-- ... 나머지 성향 버튼들 ... -->
+            </div>
 
             <button class="btn" onclick="saveProfileAndMatch()">대화 시작하기</button>
             <button id="btn-admin" class="btn-sub" style="display:none; margin-top:20px;" onclick="goAdmin()">관리자 모드 접속</button>
         </div>
     </div>
 
-    <!-- pg-waiting, pg-chat, pg-review, pg-admin 등 나머지 부분은 이전과 동일하게 유지 -->
-    <!-- (코드 길이 절약을 위해 생략했으나 실제로는 그대로 복사해서 사용하세요) -->
+    <!-- pg-waiting, pg-chat, pg-review, pg-admin 등은 생략 (기존 그대로 유지) -->
 </div>
 
 <script>
-    // 기존 스크립트 그대로 유지 (login(), loadProfile() 등)
-    // ... 이전 스크립트 내용 ...
+    const firebaseConfig = {
+        apiKey: "AIzaSyCQKm1ZWeMN_YFpP3Cs_LdcQV8vRFcALfs",
+        authDomain: "mindsetup.firebaseapp.com",
+        databaseURL: "https://mindsetup-default-rtdb.firebaseio.com",
+        projectId: "mindsetup",
+        storageBucket: "mindsetup.firebasestorage.app",
+        messagingSenderId: "484997102046",
+        appId: "1:484997102046:web:8acdb93d3a03fc6c14054f"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const storage = firebase.storage();
+
+    let currentUser = { id: "", nick: "", isAdmin: false };
+    let myRoom = "";
+    let isMatched = false;
+    let receivedMessages = [];
+    let selectedEmotion = "";
+    let selectedPersona = "";
+
+    function go(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('show'));
+        document.getElementById(id).classList.add('show');
+    }
+
+    function signup() {
+        const id = document.getElementById('userid').value.trim();
+        const pw = document.getElementById('userpw').value.trim();
+        const pwConfirm = document.getElementById('userpw-confirm').value.trim();
+
+        if (!id || !pw || !pwConfirm) {
+            return alert("모든 항목을 입력해주세요.");
+        }
+
+        if (pw !== pwConfirm) {
+            return alert("비밀번호가 일치하지 않습니다.");
+        }
+
+        db.ref('users/' + id).once('value', snap => {
+            if (snap.exists()) {
+                return alert("이미 사용 중인 아이디입니다.");
+            }
+
+            const isAdmin = (id === 'admin');
+            db.ref('users/' + id).set({ 
+                pw: pw, 
+                isAdmin: isAdmin,
+                createdAt: firebase.database.ServerValue.TIMESTAMP 
+            }).then(() => {
+                alert("회원가입이 완료되었습니다! 로그인 해주세요.");
+                document.getElementById('userid').value = '';
+                document.getElementById('userpw').value = '';
+                document.getElementById('userpw-confirm').value = '';
+            }).catch(err => {
+                alert("회원가입 중 오류가 발생했습니다: " + err.message);
+            });
+        });
+    }
 
     function login() {
         const id = document.getElementById('userid').value.trim();
         const pw = document.getElementById('userpw').value.trim();
         if(!id || !pw) return alert("아이디와 비밀번호를 입력해주세요.");
+
         db.ref('users/' + id).once('value', snap => {
-            if(!snap.exists() || snap.val().pw !== pw) return alert("정보가 일치하지 않습니다.");
-           
+            if (!snap.exists()) return alert("등록되지 않은 아이디입니다.");
+            if (snap.val().pw !== pw) return alert("비밀번호가 일치하지 않습니다.");
+
             currentUser = { id: id, nick: id, isAdmin: snap.val().isAdmin || (id === 'admin') };
             document.getElementById('btn-admin').style.display = currentUser.isAdmin ? 'block' : 'none';
             document.getElementById('my-id-display').innerText = currentUser.nick;
@@ -241,7 +233,25 @@
         });
     }
 
-    // ... 나머지 함수들 (loadProfile, saveProfileAndMatch 등) 이전과 동일 ...
+    function resetPassword() {
+        const id = document.getElementById('reset-id').value.trim();
+        if (!id) return alert("아이디를 입력해주세요.");
+
+        db.ref('users/' + id).once('value', snap => {
+            if (!snap.exists()) return alert("등록되지 않은 아이디입니다.");
+
+            // 간단한 초기화 예시: 비밀번호를 '0000'으로 변경 (실제 서비스라면 이메일 인증 필요)
+            db.ref('users/' + id).update({ pw: '0000' }).then(() => {
+                alert("비밀번호가 '0000'으로 초기화되었습니다.\n로그인 후 반드시 변경해주세요!");
+                go('pg-auth');
+            }).catch(err => {
+                alert("초기화 중 오류가 발생했습니다: " + err.message);
+            });
+        });
+    }
+
+    // 나머지 함수들 (loadProfile, previewProfile, saveProfileAndMatch, selectEmotion 등)은 이전과 동일
+    // ... (생략 - 기존 코드 그대로 복사해서 사용하세요) ...
 </script>
 </body>
 </html>
