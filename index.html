@@ -80,7 +80,7 @@
             line-height: 1.25;
         }
 
-        /* 프로필 섹션 수정 */
+        /* 프로필 섹션 */
         .profile-section { 
             margin: 0 0 35px; 
             width: 100%; 
@@ -99,15 +99,12 @@
         .profile-pic { 
             width: 80px;               /* 지름 약 2cm */
             height: 80px;
-            border-radius: 50%;        /* 완전 원형 */
+            border-radius: 50%;
             object-fit: cover;
             border: 3px solid white;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            background: #eee;          /* 기본 배경색 유지 */
-        }
-        .profile-pic.no-photo {
-            background: #eee url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M50 50 L75 85 L25 85 Z" fill="%23ccc"/></svg>') center no-repeat; /* 회색 하트 실루엣 - SVG로 회색 하트 */
-            background-size: 50%;
+            background: #eee url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="none" stroke="%23aaa" stroke-width="8"/><line x1="35" y1="35" x2="65" y2="65" stroke="%23aaa" stroke-width="8"/><line x1="65" y1="35" x2="35" y2="65" stroke="%23aaa" stroke-width="8"/></svg>') center no-repeat;
+            background-size: 60%;
         }
         .my-id-display {
             font-size: 1.1rem;
@@ -117,8 +114,8 @@
             text-align: center;
         }
         .upload-btn { 
-            margin-top: 6px;
-            padding: 5px 12px;         /* 버튼 크기 절반으로 축소 */
+            margin-top: 8px;
+            padding: 5px 12px;         /* 절반 크기 */
             background: var(--p);
             color: white;
             border: none;
@@ -171,7 +168,7 @@
                 
                 <div class="profile-container">
                     <div class="preview-container">
-                        <img id="profile-preview" class="profile-pic no-photo" src="" alt="프로필 사진">
+                        <img id="profile-preview" class="profile-pic" src="" alt="프로필 사진">
                         <input type="file" id="profile-upload" accept="image/*" onchange="previewProfile(event)">
                     </div>
                     <button class="upload-btn" onclick="document.getElementById('profile-upload').click()">사진 업로드 / 변경</button>
