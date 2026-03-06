@@ -80,7 +80,7 @@
             line-height: 1.25;
         }
 
-        /* 프로필 섹션 */
+        /* 프로필 섹션 수정 */
         .profile-section { 
             margin: 0 0 35px; 
             width: 100%; 
@@ -99,11 +99,11 @@
         .profile-pic { 
             width: 80px;               /* 지름 약 2cm */
             height: 80px;
-            border-radius: 50%;
+            border-radius: 50%;        /* 원형 유지 */
             object-fit: cover;
             border: 3px solid white;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            background: #eee url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="30" fill="none" stroke="%23aaa" stroke-width="8"/><line x1="35" y1="35" x2="65" y2="65" stroke="%23aaa" stroke-width="8"/><line x1="65" y1="35" x2="35" y2="65" stroke="%23aaa" stroke-width="8"/></svg>') center no-repeat;
+            background: #eee url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="55" font-size="60" text-anchor="middle" dominant-baseline="middle" fill="%23ccc">❤️</text></svg>') center no-repeat;
             background-size: 60%;
         }
         .my-id-display {
@@ -115,7 +115,7 @@
         }
         .upload-btn { 
             margin-top: 8px;
-            padding: 5px 12px;         /* 절반 크기 */
+            padding: 5px 12px;         /* 버튼 크기 절반 */
             background: var(--p);
             color: white;
             border: none;
@@ -222,6 +222,7 @@
         </div>
     </div>
 
+    <!-- 나머지 페이지들 (pg-waiting, pg-chat, pg-review, pg-admin)은 변경 없음 -->
     <div id="pg-waiting" class="page"><div class="content">
         <h2>주파수 찾는 중...</h2>
         <div class="loader"></div>
